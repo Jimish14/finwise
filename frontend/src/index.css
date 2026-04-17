@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #050914;
+  --bg-surface: #0f1628;
+  --bg-card: #1a2234;
+  --accent: #f59e0b;
+  --accent-dim: rgba(245, 158, 11, 0.15);
+  --success: #10b981;
+  --danger: #f43f5e;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --border: rgba(255,255,255,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #4a5568; }
+
+/* ── Typography ───────────────────────────── */
+h1, h2, h3, h4 { font-family: 'Syne', sans-serif; font-weight: 700; }
+
+/* ── Utility Classes ──────────────────────── */
+@layer components {
+  .glass-card {
+    @apply bg-card border border-white/5 rounded-2xl;
+    backdrop-filter: blur(12px);
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-200 hover:border-white/10 hover:bg-card-hover;
+  }
+
+  .btn-primary {
+    @apply bg-amber-500 hover:bg-amber-600 text-navy-900 font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 text-sm;
+  }
+
+  .btn-ghost {
+    @apply border border-white/10 hover:border-amber-500/40 hover:bg-amber-500/5 text-slate-300 font-medium px-5 py-2.5 rounded-xl transition-all duration-200 text-sm;
+  }
+
+  .btn-danger {
+    @apply bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 font-medium px-4 py-2 rounded-xl transition-all duration-200 text-sm;
+  }
+
+  .input-field {
+  @apply w-full bg-navy-800 border border-white/10 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 
+         focus:outline-none focus:border-amber-500/50 focus:bg-navy-700 transition-all duration-200 text-sm;
+}
+
+  .label {
+    @apply block text-xs font-medium text-slate-400 uppercase tracking-widest mb-1.5;
+  }
+
+  .stat-value {
+    @apply text-2xl font-display font-bold text-slate-100;
+  }
+
+  .page-title {
+    @apply text-2xl font-display font-bold text-white;
+  }
+
+  .section-title {
+    @apply text-lg font-display font-semibold text-slate-100;
+  }
+
+  .tag-chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium;
+  }
+
+  .income-tag  { @apply tag-chip bg-emerald-500/10 text-emerald-400; }
+  .expense-tag { @apply tag-chip bg-rose-500/10 text-rose-400; }
+  .pending-tag { @apply tag-chip bg-amber-500/10 text-amber-400; }
+}
+
+/* ── Animations ───────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.3); }
+  50%       { box-shadow: 0 0 20px 4px rgba(245,158,11,0.15); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+.animate-fade-up { animation: fadeUp 0.4s ease forwards; }
+.animate-glow    { animation: pulse-glow 2s ease infinite; }
+
+.skeleton {
+  background: linear-gradient(90deg, #1a2234 25%, #1f2940 50%, #1a2234 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Sidebar ──────────────────────────────── */
+.sidebar-link {
+  @apply flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 font-medium 
+         hover:text-slate-100 hover:bg-white/5 transition-all duration-150 text-sm;
+}
+
+.sidebar-link.active {
+  @apply text-amber-400 bg-amber-500/10 border border-amber-500/15;
+}
+
+/* ── Chart Customization ──────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: #1a2234 !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 12px !important;
+}
+
+/* ── Number formatting ────────────────────── */
+.rupee::before { content: "₹"; }
