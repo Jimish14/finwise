@@ -21,84 +21,84 @@ const toPlain = (doc) => {
 // ── Call AI service with proper error message ─────────────────────────────────
 const https = require("https");
 
-const https = require("https");
-
-const agent = new https.Agent({
-  keepAlive: true,
-});
-
-const callAI = async (endpoint, data, retries = 1) => {
-  try {
-    const fullURL = `${AI_URL}${endpoint}`;
-    console.log("AI FULL URL:", fullURL);
-
-    const res = await axios.post(fullURL, data, {
-      timeout: 60000,
-      httpsAgent: agent,
-    });
-
-    return res.data;
-
-  } catch (err) {
-    const status = err.response?.status;
-
-    console.log("AI ERROR:", status || err.message);
-
-    // 🔥 HANDLE 429 PROPERLY
-    if (status === 429 && retries > 0) {
-      console.log("Rate limited → waiting 8 seconds...");
-      await new Promise(res => setTimeout(res, 8000));
-      return callAI(endpoint, data, retries - 1);
-    }
-
-    // 🔥 HANDLE TIMEOUT
-    if (!status && retries > 0) {
-      console.log("Timeout → retrying...");
-      await new Promise(res => setTimeout(res, 4000));
-      return callAI(endpoint, data, retries - 1);
-    }
-
-    throw new Error("AI service busy. Try again in a few seconds.");
-  }
-};
+// const https = require("https");
 
 // const agent = new https.Agent({
-//   keepAlive: true, // 🔥 prevents connection drop
+//   keepAlive: true,
 // });
 
-// const callAI = async (endpoint, data, retries = 2) => {
+// const callAI = async (endpoint, data, retries = 1) => {
 //   try {
 //     const fullURL = `${AI_URL}${endpoint}`;
 //     console.log("AI FULL URL:", fullURL);
 
-//     // 🔥 Step 1: Wake up AI service (Render cold start fix)
-//     try {
-//       await axios.get(`${AI_URL}/`, { timeout: 10000 });
-//     } catch (e) {
-//       console.log("AI warmup skipped:", e.message);
-//     }
-
-//     // 🔥 Step 2: Actual API call
 //     const res = await axios.post(fullURL, data, {
 //       timeout: 60000,
-//       httpsAgent: agent, // 🔥 KEEP-ALIVE FIX
+//       httpsAgent: agent,
 //     });
 
 //     return res.data;
 
 //   } catch (err) {
-//     console.log("AI ERROR:", err.message);
+//     const status = err.response?.status;
 
-//     // 🔥 RETRY LOGIC (VERY IMPORTANT)
-//     if (retries > 0) {
-//       console.log("Retrying AI in 4 sec...");
+//     console.log("AI ERROR:", status || err.message);
+
+//     // 🔥 HANDLE 429 PROPERLY
+//     if (status === 429 && retries > 0) {
+//       console.log("Rate limited → waiting 8 seconds...");
+//       await new Promise(res => setTimeout(res, 8000));
+//       return callAI(endpoint, data, retries - 1);
+//     }
+
+//     // 🔥 HANDLE TIMEOUT
+//     if (!status && retries > 0) {
+//       console.log("Timeout → retrying...");
 //       await new Promise(res => setTimeout(res, 4000));
 //       return callAI(endpoint, data, retries - 1);
 //     }
 
-//     throw new Error("AI service timeout (Render cold start). Try again.");
+//     throw new Error("AI service busy. Try again in a few seconds.");
 //   }
 // };
+
+const agent = new https.Agent({
+  keepAlive: true, // 🔥 prevents connection drop
+});
+
+const callAI = async (endpoint, data, retries = 2) => {
+  try {
+    const fullURL = `${AI_URL}${endpoint}`;
+    console.log("AI FULL URL:", fullURL);
+
+    // 🔥 Step 1: Wake up AI service (Render cold start fix)
+    try {
+      await axios.get(`${AI_URL}/`, { timeout: 10000 });
+    } catch (e) {
+      console.log("AI warmup skipped:", e.message);
+    }
+
+    // 🔥 Step 2: Actual API call
+    const res = await axios.post(fullURL, data, {
+      timeout: 60000,
+      httpsAgent: agent, // 🔥 KEEP-ALIVE FIX
+    });
+
+    return res.data;
+
+  } catch (err) {
+    console.log("AI ERROR:", err.message);
+
+    // 🔥 RETRY LOGIC (VERY IMPORTANT)
+    if (retries > 0) {
+      console.log("Retrying AI in 4 sec...");
+      await new Promise(res => setTimeout(res, 4000));
+      return callAI(endpoint, data, retries - 1);
+    }
+
+    throw new Error("AI service timeout (Render cold start). Try again.");
+  }
+};
 
 // ── Build monthly summaries from raw transactions (when MonthlySummary is empty) ─
 const buildSyntheticSummaries = async (user_id) => {
