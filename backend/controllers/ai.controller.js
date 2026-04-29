@@ -19,21 +19,27 @@ const toPlain = (doc) => {
 };
 
 // ── Call AI service with proper error message ─────────────────────────────────
-const callAI = async (endpoint, data) => {
+const callAI = async (endpoint, data, retries = 2) => {
   try {
+    console.log("AI FULL URL:", `${AI_URL}${endpoint}`);
+
     const res = await axios.post(`${AI_URL}${endpoint}`, data, {
-      timeout: 600000,
-      headers: { "Content-Type": "application/json" },
+      timeout: 60000,
     });
+
     return res.data;
+
   } catch (err) {
-    const flaskMsg =
-      err.response?.data?.error ||
-      err.response?.data?.message ||
-      (err.code === "ECONNREFUSED"
-        ? `AI service is not running. Start it with: cd ai_service && python app.py`
-        : err.message);
-    throw new Error(flaskMsg || "AI service unavailable");
+    console.log("AI ERROR:", err.message);
+
+    // 🔥 RETRY LOGIC (VERY IMPORTANT)
+    if (retries > 0) {
+      console.log("Retrying AI in 5 sec...");
+      await new Promise(res => setTimeout(res, 5000));
+      return callAI(endpoint, data, retries - 1);
+    }
+
+    throw new Error("AI service not responding (cold start). Try again.");
   }
 };
 
