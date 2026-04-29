@@ -158,7 +158,10 @@ const predictExpense = async (req, res) => {
       inflation_rate:      Number(req.body.inflation_rate) || 0.06,
     };
 
+    console.log("Calling AI:", `${process.env.AI_SERVICE_URL}/predict-expense`);
+    // console.log(payload)
     const result = await callAI("/api/predict-expense", payload);
+    
 
     // Attach debug info so frontend knows what happened
     if (result && result.data) {
