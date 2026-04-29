@@ -19,12 +19,28 @@ const toPlain = (doc) => {
 };
 
 // ── Call AI service with proper error message ─────────────────────────────────
+const https = require("https");
+
+const agent = new https.Agent({
+  keepAlive: true, // 🔥 prevents connection drop
+});
+
 const callAI = async (endpoint, data, retries = 2) => {
   try {
-    console.log("AI FULL URL:", `${AI_URL}${endpoint}`);
+    const fullURL = `${AI_URL}${endpoint}`;
+    console.log("AI FULL URL:", fullURL);
 
-    const res = await axios.post(`${AI_URL}${endpoint}`, data, {
+    // 🔥 Step 1: Wake up AI service (Render cold start fix)
+    try {
+      await axios.get(`${AI_URL}/`, { timeout: 10000 });
+    } catch (e) {
+      console.log("AI warmup skipped:", e.message);
+    }
+
+    // 🔥 Step 2: Actual API call
+    const res = await axios.post(fullURL, data, {
       timeout: 60000,
+      httpsAgent: agent, // 🔥 KEEP-ALIVE FIX
     });
 
     return res.data;
@@ -34,12 +50,12 @@ const callAI = async (endpoint, data, retries = 2) => {
 
     // 🔥 RETRY LOGIC (VERY IMPORTANT)
     if (retries > 0) {
-      console.log("Retrying AI in 5 sec...");
-      await new Promise(res => setTimeout(res, 5000));
+      console.log("Retrying AI in 4 sec...");
+      await new Promise(res => setTimeout(res, 4000));
       return callAI(endpoint, data, retries - 1);
     }
 
-    throw new Error("AI service not responding (cold start). Try again.");
+    throw new Error("AI service timeout (Render cold start). Try again.");
   }
 };
 
