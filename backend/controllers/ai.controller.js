@@ -22,7 +22,7 @@ const toPlain = (doc) => {
 const callAI = async (endpoint, data) => {
   try {
     const res = await axios.post(`${AI_URL}${endpoint}`, data, {
-      timeout: 60000,
+      timeout: 600000,
       headers: { "Content-Type": "application/json" },
     });
     return res.data;
